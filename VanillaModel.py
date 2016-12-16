@@ -1,29 +1,29 @@
 #!/usr/bin/env python
 
 """
-FingerPrint.py: manages the fingerprint
+VanillaModel.py: unigram probability model, discards stopwords and non-alpha tokens
 
 Usage:
-	import corpus
-	fp = FingerPrint()
-	words = fp.words()
+	from VanillaModel import VanillaModel as Model
+	m = Model("hillary_train")
+	m2 = Model("trump_train")
+	score = m.score(m2, test_file.read())
 """
 
 __author__ = "Prakhar Sahay"
 __date__ = "November 10th, 2016"
 
 # import statements
-# import os
 from operator import itemgetter
 import math
 import nltk
 from nltk.corpus import stopwords
 
-class FingerPrint:
+class VanillaModel():
+
+	stop_words = stopwords.words('english')
 
 	def __init__(self, filename):
-		# self.root = './my_text_corpus'
-		self.stop_words = stopwords.words('english')
 		self.avg_word_length = []
 		self.lex_diversity = []
 		self.nonstop = []
@@ -31,7 +31,7 @@ class FingerPrint:
 		file = open(filename, encoding="utf8")
 		self.analyze(file)
 
-
+	# build a probability model from the training file
 	def analyze(self, file):
 
 		# analyze each line as separate sample
@@ -58,16 +58,40 @@ class FingerPrint:
 
 		self.fd = nltk.FreqDist(self.nonstop)
 
+	# return positive integer if self is better match for sample text
+	# return negative integer if other model is better match
+	def score(self, other, sample):
+		score = 0
+		for sentence in nltk.sent_tokenize(sample):
+			for word in nltk.word_tokenize(sentence):
+				# if word in either model, lean towards higher frequency
+				pos = self.frequency_of(word)
+				neg = other.frequency_of(word)
+				if pos > neg:
+					score += 1
+				elif pos < neg:
+					score -= 1
+		return score
 
+	# helper
+	def frequency_of(self, word):
+		return self.fd.get(word, 0) / self.fd.N()
+
+	## STYLOMETRICS ##
+
+	# lexical diversity
 	def get_lex_diversity(self):
 		return self.vector_dist(self.lex_diversity)
 
+	# average word length
 	def get_avg_word_length(self):
 		return self.vector_dist(self.avg_word_length)
 
+	# most common significant words
 	def get_most_common(self, n=10):
 		return self.fd.most_common(n)
 
+	# helper
 	def vector_dist(self, vector):
 		if not vector:
 			return []
@@ -81,11 +105,13 @@ class FingerPrint:
 		quartiles.append(vector[-1])
 		return quartiles
 
+	# helper
 	def is_significant(self, word):
 		return word not in self.stop_words and "'" not in word and word.isalpha()
 		# eliminate 's 're n't 've
 		# no numbers or punctuation
 
+	# words appearing more in this distribution, most to least common
 	def diff_most_common(self, other, n=10):
 		diff_fd = {}
 		for word in self.fd.keys():
@@ -97,6 +123,7 @@ class FingerPrint:
 		# most_common = sorted(diff_fd.items(), key=itemgetter(1))
 		return [most_common[-n:], most_common[:n]]
 
+	# words appearing only in this distribution, most to least common
 	def unique_to_say(self, other, n=0):
 		unique_words = []
 		for word in self.fd.keys():
@@ -110,6 +137,3 @@ class FingerPrint:
 		if n < 1:
 			n = len(unique_words)
 		return unique_words[:n]
-
-	def frequency_of(self, word):
-		return self.fd.get(word, 0) / self.fd.N()
