@@ -27,12 +27,14 @@ class VanillaModel():
 		self.avg_word_length = []
 		self.lex_diversity = []
 		self.nonstop = []
+		self.fd = nltk.FreqDist()
 
-		file = open(filename, encoding="utf8")
-		self.analyze(file)
+		self.analyze(filename)
 
 	# build a probability model from the training file
-	def analyze(self, file):
+	def analyze(self, filename):
+		# print(filename)
+		file = open(filename, encoding="utf8")
 
 		# analyze each line as separate sample
 		for sample in file:
@@ -46,7 +48,6 @@ class VanillaModel():
 					num_words += 1
 					total_length += len(word)
 
-					word = word.lower()
 					vocab.add(word)
 					if not self.is_significant(word):
 						continue
@@ -77,6 +78,12 @@ class VanillaModel():
 	def frequency_of(self, word):
 		return self.fd.get(word, 0) / self.fd.N()
 
+	# helper
+	def is_significant(self, word):
+		return word not in self.stop_words and "'" not in word and word.isalpha()
+		# eliminate 's 're n't 've
+		# no numbers or punctuation
+
 	## STYLOMETRICS ##
 
 	# lexical diversity
@@ -104,12 +111,6 @@ class VanillaModel():
 			quartiles.append(quartile)
 		quartiles.append(vector[-1])
 		return quartiles
-
-	# helper
-	def is_significant(self, word):
-		return word not in self.stop_words and "'" not in word and word.isalpha()
-		# eliminate 's 're n't 've
-		# no numbers or punctuation
 
 	# words appearing more in this distribution, most to least common
 	def diff_most_common(self, other, n=10):

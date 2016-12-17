@@ -15,12 +15,20 @@ __author__ = "Prakhar Sahay"
 __date__ = "December 16th, 2016"
 
 # import statements
-from VanillaModel import VanillaModel as Model
+# from VanillaModel import VanillaModel as Model
+from BigramModel import BigramModel as Model
 
 class FingerPrint():
 
+	def __init__(self):
+		self.model = None
+
 	def train(self, pos_file, neg_file):
-		self.model = (Model(pos_file), Model(neg_file))
+		if self.model:
+			self.model[0].analyze(pos_file)
+			self.model[1].analyze(neg_file)
+		else:
+			self.model = (Model(pos_file), Model(neg_file))
 
 	def test(self, pos_test, neg_test):
 
