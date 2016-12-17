@@ -16,27 +16,29 @@ __date__ = "December 16th, 2016"
 
 # import statements
 # from VanillaModel import VanillaModel as Model
-from BigramModel import BigramModel as Model
+# from BigramModel import BigramModel as Model
+from PosModel import PosModel as Model
 
 class FingerPrint():
 
 	def __init__(self):
 		self.model = None
 
-	def train(self, pos_file, neg_file):
+	def train(self, pos_file_name, neg_file_name):
+
+		pos_file = open(pos_file_name, encoding="utf8")
+		neg_file = open(neg_file_name, encoding="utf8")
+
 		if self.model:
 			self.model[0].analyze(pos_file)
 			self.model[1].analyze(neg_file)
 		else:
 			self.model = (Model(pos_file), Model(neg_file))
 
-	def test(self, pos_test, neg_test):
+	def test(self, pos_file_name, neg_file_name):
 
-		pos_train = self.model[0]
-		neg_train = self.model[1]
-
-		(true_pos, pos) = self.classify(pos_train, neg_train, pos_test)
-		(true_neg, neg) = self.classify(neg_train, pos_train, neg_test)
+		(true_pos, pos) = self.classify(self.model[0], self.model[1], pos_file_name)
+		(true_neg, neg) = self.classify(self.model[1], self.model[0], neg_file_name)
 		false_pos = neg - true_neg
 
 		# calculate statistics
@@ -47,11 +49,11 @@ class FingerPrint():
 
 		self.stats = (recall, precision, accuracy, f_measure)
 
-	def classify(self, pos_model, neg_model, test_file):
+	def classify(self, pos_model, neg_model, test_file_name):
 
 		pos_score = 0
 		num_tests = 0
-		file = open(test_file, encoding="utf8")
+		file = open(test_file_name, encoding="utf8")
 
 		# each line/dialog is a test
 		for sample in file:

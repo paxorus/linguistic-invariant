@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-fingerprinter.py: proof of concept script
+fingerprinter.py: top-level script
 
 Usage:
 	python fingerprinter.py

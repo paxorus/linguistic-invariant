@@ -14,24 +14,20 @@ __author__ = "Prakhar Sahay"
 __date__ = "December 16th, 2016"
 
 # import statements
-from operator import itemgetter
-import math
 import nltk
 
 class BigramModel():
 
-	def __init__(self, filename):
+	def __init__(self, file):
 		self.nonstop = []
 		self.bigrams = []
 		self.fd = nltk.FreqDist()
 		self.cfd = nltk.ConditionalFreqDist()
 
-		self.analyze(filename)
+		self.analyze(file)
 
 	# build a probability model from the training file
-	def analyze(self, filename):
-
-		file = open(filename, encoding="utf8")
+	def analyze(self, file):
 
 		# analyze each line as separate sample
 		for sample in file:

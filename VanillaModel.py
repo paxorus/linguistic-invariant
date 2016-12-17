@@ -23,18 +23,16 @@ class VanillaModel():
 
 	stop_words = stopwords.words('english')
 
-	def __init__(self, filename):
+	def __init__(self, file):
 		self.avg_word_length = []
 		self.lex_diversity = []
 		self.nonstop = []
 		self.fd = nltk.FreqDist()
 
-		self.analyze(filename)
+		self.analyze(file)
 
 	# build a probability model from the training file
-	def analyze(self, filename):
-		# print(filename)
-		file = open(filename, encoding="utf8")
+	def analyze(self, file):
 
 		# analyze each line as separate sample
 		for sample in file:
