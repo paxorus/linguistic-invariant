@@ -74,7 +74,8 @@ class VanillaModel():
 
 	# helper
 	def frequency_of(self, word):
-		return self.fd.get(word, 0) / self.fd.N()
+		# P(word | self)
+		return self.fd[word] / self.fd.N()
 
 	# helper
 	def is_significant(self, word):

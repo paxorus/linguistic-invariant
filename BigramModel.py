@@ -19,7 +19,7 @@ import nltk
 class BigramModel():
 
 	def __init__(self, file):
-		self.nonstop = []
+		self.words = []
 		self.bigrams = []
 		self.fd = nltk.FreqDist()
 		self.cfd = nltk.ConditionalFreqDist()
@@ -38,10 +38,10 @@ class BigramModel():
 					if self.is_significant(word):
 						words.append(word)
 
-				self.nonstop.extend(words)
+				self.words.extend(words)
 				self.bigrams.extend(nltk.bigrams(words))
 
-		self.fd = nltk.FreqDist(self.nonstop)
+		self.fd = nltk.FreqDist(self.words)
 		self.cfd = nltk.ConditionalFreqDist(self.bigrams)
 
 
@@ -64,13 +64,14 @@ class BigramModel():
 	# helper
 	def frequency_of(self, w1, w2):
 		if w1 in self.cfd:
+			# P(w2 | w1, self)
 			fd = self.cfd[w1]
 			if w2 in fd:
-				# occurrences of (w1, w2) / occurrences of w1
 				return fd[w2] / fd.N()
 
 		if w2 in self.fd:
-			return self.fd[w1] / self.fd.N()
+			# P(w2 | self)
+			return self.fd[w2] / self.fd.N()
 
 		return 0
 
