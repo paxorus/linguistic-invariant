@@ -19,7 +19,9 @@ __date__ = "December 16th, 2016"
 # from BigramModel import BigramModel as Model
 # from PosModel import PosModel as Model
 # from NaiveBayesModel import NaiveBayesModel as Model
-from RandomWalkModel import RandomWalkModel as Model
+# from RandomWalkModel import RandomWalkModel as Model
+# from PosVectorModel import PosVectorModel as Model
+from SimpleMatcherModel import SimpleMatcherModel as Model
 
 class FingerPrint():
 

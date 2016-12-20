@@ -63,7 +63,6 @@ class RandomWalkModel():
 			pos_score += RandomWalker(self, words).score
 			neg_score += RandomWalker(other, words).score
 
-		print(pos_score, neg_score)
 		return pos_score - neg_score
 
 def lower_tokenize(sentence):

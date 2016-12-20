@@ -29,7 +29,6 @@ class RandomWalker():
 
 	# predict word[idx], keep most frequently suggested
 	def walk_to(self, idx):
-		# total_fd = nltk.FreqDist()
 		fds = []
 
 		# use states as (-1) context
@@ -38,7 +37,7 @@ class RandomWalker():
 		total_weight = sum(map(itemgetter(1), self.states))# 20
 		for state,weight in self.states:# (is,6)
 			fd = self.model.back1_cfd[state]# {that:30, ...}
-			state_avg_fd += self.scaleFd(fd, weight / total_weight)
+			state_avg_fd += self.scale_fd(fd, weight / total_weight)
 		if total_weight:
 			fds.append(state_avg_fd)
 
@@ -64,19 +63,19 @@ class RandomWalker():
 		# average the above information 
 		actual_word = self.words[idx]
 		total_fd = sum(fds, nltk.FreqDist())
-		average_fd = self.scaleFd(total_fd, 1/len(fds))
-		self.states = self.getNextStates(average_fd, actual_word)
+		average_fd = self.scale_fd(total_fd, 1/len(fds))
+		self.states = self.get_next_states(average_fd, actual_word)
 
-	def scaleFd(self, fd, scalar):
-		weightedMap = {}
+	def scale_fd(self, fd, scalar):
+		weighted_map = {}
 		for next_state,freq in fd.most_common(self.MAX_STATES):# (that,30)
-			weightedMap[next_state] = freq * scalar# {that:9 = 6/20 * 30}
+			weighted_map[next_state] = freq * scalar# {that:9 = 6/20 * 30}
 
-		return nltk.FreqDist(weightedMap)
+		return nltk.FreqDist(weighted_map)
 
 	# use FreqDist to predict next states
 	# increase score if actual word 
-	def getNextStates(self, fd, actual_word):
+	def get_next_states(self, fd, actual_word):
 		pairs = fd.most_common(self.MAX_STATES + 1)# [(a,20), (her,15), (my,10), (their,5)]
 		similars = get_column(pairs, 0)# [a, her, my, their]
 
