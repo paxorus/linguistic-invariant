@@ -17,7 +17,6 @@ __date__ = "December 19th, 2016"
 import nltk
 import numpy as np
 from operator import itemgetter
-from RandomWalker2 import RandomWalker2
 
 class PosVectorModel():
 
@@ -36,7 +35,7 @@ class PosVectorModel():
 		# analyze each line as separate sample
 		for sample in file:
 			for sentence in nltk.sent_tokenize(sample):
-				words = lower_tokenize(sentence)
+				words = nltk.word_tokenize(sentence)
 				bigrams.extend(nltk.bigrams(words))
 				tag_lookup.extend(nltk.pos_tag(words))
 
@@ -74,13 +73,37 @@ class PosVectorModel():
 		pos_score = 0
 		neg_score = 0
 		for sentence in nltk.sent_tokenize(sample):
-			words = lower_tokenize(sentence)
-			pos_score += RandomWalker2(self, words).score
-			neg_score += RandomWalker2(other, words).score
+			words = nltk.word_tokenize(sentence)
+			pos_score += self.count(words)
+			neg_score += other.count(words)
 
-		# print(pos_score, neg_score)
 		return pos_score - neg_score
 
-def lower_tokenize(sentence):
-	words = nltk.word_tokenize(sentence)# [The, dog, ...]
-	return list(map(lambda w: w.lower(), words))
+	def count(self, words):
+		score = 0
+
+		# walk num_words-1 times
+		for idx in range(1, len(words)):
+			fd = self.word_transition_cfd[words[idx - 1]]# most likely words to follow the previous word
+			score += self.calculate_score(fd.keys(), words[idx])
+
+		return score
+
+	# assess how well actual_word fits FreqDist
+	def calculate_score(self, predicted, actual_word):
+		
+		if not predicted:
+			return 0
+
+		if actual_word in predicted:
+			return 1
+		
+		# attempt to assign partial credit with cosine similarity
+		actual_vector = self.pos_vector(actual_word)
+		predicted_vector = self.empty_pos_vector()
+		for word in predicted:
+			predicted_vector += self.pos_vector(word)
+		
+		predicted_vector /= len(predicted)
+
+		return actual_vector.dot(predicted_vector)

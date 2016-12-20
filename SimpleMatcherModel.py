@@ -16,8 +16,6 @@ __date__ = "December 19th, 2016"
 
 # import statements
 import nltk
-import numpy as np
-from operator import itemgetter
 
 class SimpleMatcherModel():
 
